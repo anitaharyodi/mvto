@@ -3,7 +3,6 @@ import Webcam from 'react-webcam'
 import * as handpose from '@tensorflow-models/handpose'
 import { handsplaceholderSolid, handsplaceholderDash, HandRightOutline, HandLeftOutline } from '../handsplaceholder'
 import { Button, Image, Stack, Container, Box } from '@chakra-ui/react'
-import Toggle from '../Form'
 import Link from 'next/link'
 import Spinner from 'react-spinner-material'
 import { Koordinatsonme } from '../koordinatonme'
@@ -11,12 +10,13 @@ import { RiCameraFill, RiCameraOffFill, RiArrowLeftSLine } from 'react-icons/ri'
 import useParamsStore from '../stores/useParamsStore'
 import useModelStore from '../stores/useModelStore'
 import { STATE_OFF, STATE_ON, VIEW_ON_MODEL } from '../values/view_modes'
-import { Signimage, Signpass } from "../handimage"
+import { Signimage, Signpass } from '../handimage'
 import { URL_CART, URL_ONME, URL_MAIN } from '../api/urls'
 import { CAT_BANGLES, CAT_BRACELETS, CAT_EARRINGS, CAT_NECKLACES, CAT_RINGS } from '../values/product_categories'
 import { Koordinats as KoordinatsModelsFooter } from '../koordinat'
 import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'next/navigation'
+import Toggle from '../Toggle.Component'
 const animasiClassOf = 'animasi-of-left'
 const animasiClassOn = 'animasi-on-left'
 
@@ -28,13 +28,14 @@ export default function CaptureModel({ pose, holderSvg }) {
   let signList = []
 
   const param = useSearchParams()
-  var mobiled = param.get('_token');
+  var mobiled = param.get('_token')
   const prod_name = param.get('prod_name')
+  const on_me = param.get('onme')
   //const customer_id = param.get('customer_id');
-  const min = 1;
-  const max = 999999;
+  const min = 1
+  const max = 999999
 
-  const customer_id = (param.get('customer_id') === 'null' || param.get('customer_id') === null) ? Math.round(min + Math.random() * (max - min)) : param.get('customer_id')
+  const customer_id = param.get('customer_id') === 'null' || param.get('customer_id') === null ? Math.round(min + Math.random() * (max - min)) : param.get('customer_id')
   const webcamRef = useRef(null)
   const canvasRef = useRef(null)
   const [camState, setCamState] = useState('on')
@@ -44,7 +45,6 @@ export default function CaptureModel({ pose, holderSvg }) {
   // const [actionOncahnge, setActionOnchange] = useState('Otomatis')
   const [actionOncahnge, setActionOnchange] = useState('Manual')
   const [statusReady, setStatusReady] = useState(true)
-
 
   const [disabledbottonCamera, setDisabledButtonCamera] = useState(false)
 
@@ -56,8 +56,11 @@ export default function CaptureModel({ pose, holderSvg }) {
   const [defaultScale, setDefaultScale] = useState(1)
   const cat = categoryDefault.cat
 
-  useEffect(() => {
+  const [checked, setChecked] = useState(false)
+  const [disabled, setDisabled] = useState(false)
+  const [actionCamera, setActionCamera] = useState('Manual')
 
+  useEffect(() => {
     const scaleWidth = window.innerWidth
     const scaleHeight = window.innerHeight
     const scaleDefaulring = 1 / ((scaleHeight - 200) / scaleWidth)
@@ -74,6 +77,7 @@ export default function CaptureModel({ pose, holderSvg }) {
         statusCamera = localStorage.getItem('actioncamera')
         console.log('statusCamera B', statusCamera)
         if (statusCamera === 'Otomatis') {
+          document.getElementById('alert').textContent = "Harap tunggu..."
           const video = webcamRef.current.video
           const videoWidth = webcamRef.current.video.videoWidth
           const videoHeight = webcamRef.current.video.videoHeight
@@ -95,7 +99,7 @@ export default function CaptureModel({ pose, holderSvg }) {
               let scaleWidth = window.innerWidth
               // if (scaleWidth >= 300) {
               if (true) {
-                console.log(face[0].annotations);
+                console.log(face[0].annotations)
                 if (cat == CAT_NECKLACES) {
                   if (face[0].annotations.leftCheek.length > 0) {
                     for (let h = 0; h < face[0].annotations.leftCheek.length; h++) {
@@ -109,8 +113,7 @@ export default function CaptureModel({ pose, holderSvg }) {
                       takeCap()
                     }
                   }
-                }
-                else if (cat == CAT_EARRINGS) {
+                } else if (cat == CAT_EARRINGS) {
                   if (face[0].annotations.leftEyebrowLower.length > 0) {
                     for (let h = 0; h < face[0].annotations.leftEyebrowLower.length; h++) {
                       totData += face[0].annotations.leftEyebrowLower[h][0]
@@ -125,13 +128,12 @@ export default function CaptureModel({ pose, holderSvg }) {
                 }
               }
             }
-
           } else if (net.estimateHands) {
             const hand = await net.estimateHands(video)
             if (hand.length > 0) {
               let totData = 0
               let scaleWidth = window.innerWidth
-              console.log(hand[0].annotations);
+              console.log(hand[0].annotations)
               // if (scaleWidth >= 300) {
               if (true) {
                 if (cat == CAT_BRACELETS) {
@@ -146,17 +148,16 @@ export default function CaptureModel({ pose, holderSvg }) {
                       takeCap()
                     }
                   }
-                }
-                else if (cat == CAT_RINGS) {
+                } else if (cat == CAT_RINGS) {
                   if (hand[0].annotations.ringFinger.length > 0) {
                     for (let h = 0; h < hand[0].annotations.ringFinger.length; h++) {
                       totData += hand[0].annotations.ringFinger[h][0]
                       // console.log('totData', hand[0].annotations.palmBase[h][0])
                     }
 
-                    // document.getElementById('alert').textContent = "ringfinger" + totData
+                    document.getElementById('alert').textContent = "ringfinger" + totData
                     // console.log('masuk', totData)
-                    if (totData >= 930 && totData <= 935) {
+                    if (totData >= 925 && totData <= 935) {
                       takeCap()
                     }
                   }
@@ -189,7 +190,7 @@ export default function CaptureModel({ pose, holderSvg }) {
   function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-        ;[a[i], a[j]] = [a[j], a[i]]
+      ;[a[i], a[j]] = [a[j], a[i]]
     }
     return a
   }
@@ -198,11 +199,23 @@ export default function CaptureModel({ pose, holderSvg }) {
   }, [runPose])
 
   useEffect(() => {
-    localStorage.setItem('actioncamera', actionOncahnge)
-  }, [actionOncahnge])
+    if(actionCamera === 'Otomatis') {
+      document.getElementById('alert').textContent = "Harap tunggu..."
+    }else {
+       document.getElementById('alert').textContent = ""
+    }
+  }, [actionCamera])
+
+  useEffect(() => {
+    localStorage.setItem('actioncamera', checked ? 'Otomatis' : 'Manual')
+    setActionCamera(checked ? 'Otomatis' : 'Manual')
+  }, [checked])
+
+  // useEffect(() => {
+  //   localStorage.setItem('actioncamera', actionOncahnge)
+  // }, [actionOncahnge])
 
   function turnOffCamera() {
-
     if (cat === CAT_RINGS) {
       setImgList(KoordinatsModelsFooter.KoordinatRings.model.image)
     } else if (cat === CAT_BRACELETS) {
@@ -226,7 +239,7 @@ export default function CaptureModel({ pose, holderSvg }) {
   function takeCap() {
     const image_data_url = webcamRef.current.getScreenshot()
     //console.log(customer_id)
-    if (!mobiled) {
+    if (mobiled && on_me === 'on') {
       //save
       var raw = JSON.stringify(image_data_url)
 
@@ -234,7 +247,7 @@ export default function CaptureModel({ pose, holderSvg }) {
         method: 'POST',
         body: raw,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           // "Content-Type": "application/x-www-form-urlencoded",
         },
       }
@@ -281,16 +294,17 @@ export default function CaptureModel({ pose, holderSvg }) {
         setImgList(arr_img)
         setViewMode(VIEW_ON_MODEL)
         document.querySelector('#loader-capture').style.display = 'none'
-
-
       })
     }
   }
 
+  const handleChange = e => {
+    setChecked(e.target.checked)
+  }
+
   return (
     <>
-      <Box h="20px" id="alert" zIndex={'999999'} position={'absolute'} left={'20px'} top={'70px'}>
-      </Box>
+      <Box h="20px" id="alert" zIndex={'999999'} position={'absolute'} left={'20px'} top={'70px'}></Box>
       {camState === 'on' && statusReady ? (
         <>
           <Box
@@ -311,7 +325,7 @@ export default function CaptureModel({ pose, holderSvg }) {
             }}
           >
             {camState === 'on' ? (
-              <Webcam id="webcam" ref={webcamRef} videoConstraints={{ facingMode: 'environment' }} style={{ bottom: '0px' }} />
+              <Webcam id="webcam" screenshotQuality={1} ref={webcamRef} videoConstraints={{ facingMode: 'environment' }} style={{ bottom: '0px' }} />
             ) : (
               // <canvas ref={canvasRef} style={{ bottom: "0px" }} />
               <canvas ref={canvasRef} style={{ bottom: '0px' }} />
@@ -346,16 +360,18 @@ export default function CaptureModel({ pose, holderSvg }) {
               }}
               display={camState === 'off' ? 'none' : 'block'}
             >
-              <Button
-                colorScheme={'gray'}
-                width={'32px'}
-                height={'32px'}
-                borderRadius={'50%'}
-                marginRight={5}
-                onClick={turnOffCamera}
-                leftIcon={<RiArrowLeftSLine size={25} />}
-                style={{ zIndex: 1000, height: '37px' }}
-              ></Button>
+              {on_me !== 'on' && (
+                <Button
+                  colorScheme={'gray'}
+                  width={'32px'}
+                  height={'32px'}
+                  borderRadius={'50%'}
+                  marginRight={5}
+                  onClick={turnOffCamera}
+                  leftIcon={<RiArrowLeftSLine size={25} />}
+                  style={{ zIndex: 1000, height: '37px' }}
+                ></Button>
+              )}
             </Box>
             <Box
             // w={[600, 600]} mt={130} p={0} display={{ md: 'flex' }} ml={handsLeftRight === "Left" ? -20 : 100
@@ -376,7 +392,7 @@ export default function CaptureModel({ pose, holderSvg }) {
                   }}
                 >
                   <path
-                    className={actionOncahnge === 'Manual' ? animasiClassOf : animasiClassOf}
+                    className={actionCamera === 'Manual' ? animasiClassOf : animasiClassOf}
                     pathLength="100"
                     stroke="white"
                     strokeWidth="2"
@@ -386,7 +402,7 @@ export default function CaptureModel({ pose, holderSvg }) {
                     d={`${holderSvg.d + holderSvg.d1 + holderSvg.d2 + holderSvg.d3}`}
                   ></path>
                   <path
-                    className={actionOncahnge === 'Manual' ? animasiClassOf : animasiClassOn}
+                    className={actionCamera === 'Manual' ? animasiClassOf : animasiClassOn}
                     pathLength="1"
                     stroke="white"
                     fill="none"
@@ -412,10 +428,10 @@ export default function CaptureModel({ pose, holderSvg }) {
           {/* Foter */}
           <Box pb={0} pt={0} w={'100%'} h={180} bottom={0} position="fixed" bg={'transparent'} zIndex={2000}>
             <Box position={'absolute'} right={4} bottom={14} zIndex={2000}>
-              <Toggle />
+              <Toggle checked={checked} size="default" disabled={disabled} onChange={handleChange} offstyle="btn-danger" onstyle="btn-success" />
             </Box>
             <Box position={'absolute'} right={4} bottom={8} zIndex={2000} color="whiteAlpha.800">
-              {actionOncahnge}
+              {actionCamera}
             </Box>
             <Container centerContent position={'relative'} top={39}>
               <Box margin={2} padding="4" maxW="md">
@@ -424,11 +440,11 @@ export default function CaptureModel({ pose, holderSvg }) {
                     width={'67px'}
                     height={'67px'}
                     borderRadius={'50%'}
-                    leftIcon={actionOncahnge === 'Manual' ? <RiCameraFill size={25} style={{ marginLeft: '6px' }} /> : <RiCameraOffFill size={25} style={{ marginLeft: '6px' }} />}
-                    disabled={actionOncahnge === 'Manual' ? (disabledbottonCamera ? true : false) : true}
-                    onClick={actionOncahnge === 'Manual' ? takeCap : turnOffCamera}
-                    colorScheme={actionOncahnge === 'Manual' ? 'gray' : 'blackAlpha'}
-                    bg={actionOncahnge === 'Manual' ? '#FFFFFF' : 'rgba(0, 0, 0, 0.92)'}
+                    leftIcon={actionCamera === 'Manual' ? <RiCameraFill size={25} style={{ marginLeft: '6px' }} /> : <RiCameraOffFill size={25} style={{ marginLeft: '6px' }} />}
+                    disabled={actionCamera === 'Manual' ? (disabledbottonCamera ? true : false) : true}
+                    onClick={actionCamera === 'Manual' ? takeCap : turnOffCamera}
+                    colorScheme={actionCamera === 'Manual' ? 'gray' : 'blackAlpha'}
+                    bg={actionCamera === 'Manual' ? '#FFFFFF' : 'rgba(0, 0, 0, 0.92)'}
                   ></Button>
                 </Stack>
               </Box>

@@ -46,7 +46,7 @@ function ModalPage() {
             {selectedItem && (
               <iframe
                 style={{ position: 'relative', width: '100%', height: '622px', padding:'16px' }}
-                src={`https://1247-36-73-73-251.ngrok-free.app/${selectedItem.url}`}
+                src={`https://5558-103-162-62-7.ngrok-free.app/${selectedItem.url}`}
               />
             )}
           </ModalBody>

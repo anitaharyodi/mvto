@@ -375,7 +375,7 @@ export const Koordinats = {
         marginLeft: [-24, -3, 3.5, -165, -60.5],
         marginTopTrue: [2, 33, 39, -110, 15],
         marginLeftTrue: [-27, 4, -15.5, -159.5, -67.6],
-        dimension: [18, 16, 13, 0, 0]
+        dimension: [17, 16, 13, 0, 0]
       },
       marginMobiled: {
         //capture
@@ -408,11 +408,11 @@ export const Koordinats = {
       marginOnMe: {
         widthBox: [100, 0, 0, 0, 0],
         topBox: [20.5, 0, 0, 0, 0],
-        right: [-39.5, -46.2, 0, 0, 0],
-        bottom: [-85, -91, 0, 0, 0],
+        right: [-39.5, -46, -41.2, -44.8, -46.5],
+        bottom: [-85, -90.4, -120, 0, 0],
         marginLeft: [-10, 0, 0, 0, 0],
         marginTop: [45, 0, 0, 0, 0],
-        dimension: [5, 5, 0, 0, 0]
+        dimension: [5, 5, 6, 0, 0]
       },
       transformOrigin: ['90% 80%', '30% 60%', '30% 50%', '50% 50%', '45% 70%'],
       transformOriginOnMe: ['50% 40%', '55% 70%', '60% 90% ', '20 % 50 % ', '25 % 50 % '],

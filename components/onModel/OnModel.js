@@ -7,23 +7,40 @@ import useParamsStore from '../stores/useParamsStore'
 import { CAT_BANGLES, CAT_BRACELETS, CAT_EARRINGS, CAT_NECKLACES, CAT_RINGS } from '../values/product_categories'
 import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'next/navigation'
+import useDeviceType from 'utils/DeviceTypes'
 
 export default function OnModel(props) {
+  const screen_width = document.documentElement.clientWidth
   const index_model = useModelStore(s => s.index_selected)
+  const param = useSearchParams()
+  var onMeParams = param.get('onme')
+  let indexCustom
+  const indexBottom = onMeParams === 'on' ? 2 : 1
   const onSelectModel = useModelStore(s => s.onSelect)
   const cat = useParamsStore(s => s.cat)
+  const mobileType = useDeviceType()
 
   const img = useMemo(() => props.params.img_list[index_model], [index_model, props.params.img_list])
   const [_, setscaleZoom] = useState({ scale: 1 })
 
-  const param = useSearchParams()
-  var on_me = param.get('onme');
-  if (props.params.img_list.length === 1)
-    on_me = "on"
-  else
-    on_me = "off"
+  var on_me = param.get('onme')
 
-  var mobiled = param.get('_token');
+  if (onMeParams === 'on') {
+    indexCustom = 3
+  } else if (screen_width < 360) {
+    if(mobileType === 'Android') {
+      indexCustom = 1
+    }else {
+      indexCustom = 4
+    }
+  } else if (screen_width > 360) {
+    indexCustom = 2
+  }
+
+  if (props.params.img_list.length === 1) on_me = 'on'
+  else on_me = 'off'
+
+  var mobiled = param.get('_token')
   useEffect(() => {
     const scaleZoomLS = localStorage.setItem('scaleZoom', 1)
     if (scaleZoomLS) {
@@ -33,8 +50,7 @@ export default function OnModel(props) {
   const style_model_product_default = useMemo(() => {
     const draggable_status = localStorage.getItem('dragableStatus')
     if (cat === CAT_BANGLES) {
-      if (on_me === "on" && !isMobile) {
-        console.log('MASUK 1')
+      if (on_me === 'on' && !isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatBangles.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBangles.model.marginOnMe.topBox[index_model],
@@ -59,8 +75,7 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatBangles.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatBangles.model.transformOriginOnMe[index_model],
         }
-      } else if (on_me === "on" && isMobile) {
-        console.log('MASUK 2')
+      } else if (on_me === 'on' && isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatBangles.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBangles.model.marginOnMe.topBox[index_model],
@@ -85,9 +100,7 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatBangles.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatBangles.model.transformOriginOnMe[index_model],
         }
-      }
-      else if (isMobile) {
-        console.log('MASUK 3')
+      } else if (isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatBangles.model.marginMobile.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBangles.model.marginMobile.topBox[index_model],
@@ -113,7 +126,6 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatBangles.model.transformOriginOnMe[index_model],
         }
       } else {
-        console.log('MASUK 4')
         return {
           widthBox: KoordinatsModels.KoordinatBangles.model.marginDesktop.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBangles.model.marginDesktop.topBox[index_model],
@@ -139,9 +151,8 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatBangles.model.transformOriginOnMe[index_model],
         }
       }
-    }
-    else if (cat === CAT_NECKLACES) {
-      if (on_me === "on" && !isMobile) {
+    } else if (cat === CAT_NECKLACES) {
+      if (on_me === 'on' && !isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatNecklaces.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatNecklaces.model.marginOnMe.topBox[index_model],
@@ -166,7 +177,7 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatNecklaces.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatNecklaces.model.transformOriginOnMe[index_model],
         }
-      } else if (on_me === "on" && isMobile) {
+      } else if (on_me === 'on' && isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatNecklaces.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatNecklaces.model.marginOnMe.topBox[index_model],
@@ -242,9 +253,8 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatNecklaces.model.transformOriginOnMe[index_model],
         }
       }
-    }
-    else if (cat === CAT_EARRINGS) {
-      if (on_me === "on" && !isMobile) {
+    } else if (cat === CAT_EARRINGS) {
+      if (on_me === 'on' && !isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatEarrings.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatEarrings.model.marginOnMe.topBox[index_model],
@@ -269,7 +279,7 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatEarrings.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatEarrings.model.transformOriginOnMe[index_model],
         }
-      } else if (on_me === "on" && isMobile) {
+      } else if (on_me === 'on' && isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatEarrings.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatEarrings.model.marginOnMe.topBox[index_model],
@@ -345,9 +355,8 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatEarrings.model.transformOriginOnMe[index_model],
         }
       }
-    }
-    else if (cat === CAT_BRACELETS) {
-      if (on_me === "on" && !isMobile) {
+    } else if (cat === CAT_BRACELETS) {
+      if (on_me === 'on' && !isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatBracelets.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBracelets.model.marginOnMe.topBox[index_model],
@@ -372,7 +381,7 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatBracelets.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatBracelets.model.transformOriginOnMe[index_model],
         }
-      } else if (on_me === "on" && isMobile) {
+      } else if (on_me === 'on' && isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatBracelets.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatBracelets.model.marginOnMe.topBox[index_model],
@@ -448,10 +457,8 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatBracelets.model.transformOriginOnMe[index_model],
         }
       }
-    }
-    else if (cat === CAT_RINGS) {
-
-      if (on_me === "on" && !isMobile) {
+    } else if (cat === CAT_RINGS) {
+      if (on_me === 'on' && !isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatRings.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatRings.model.marginOnMe.topBox[index_model],
@@ -476,12 +483,13 @@ export default function OnModel(props) {
           transformOrigin: KoordinatsModels.KoordinatRings.model.transformOrigin[index_model],
           transformOriginOnMe: KoordinatsModels.KoordinatRings.model.transformOriginOnMe[index_model],
         }
-      } if (on_me === "on" && isMobile) {
+      }
+      if (on_me === 'on' && isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatRings.model.marginOnMe.widthBox[index_model],
           topBox: KoordinatsModels.KoordinatRings.model.marginOnMe.topBox[index_model],
-          right: KoordinatsModels.KoordinatRings.model.marginOnMe.right[1],
-          bottom: KoordinatsModels.KoordinatRings.model.marginOnMe.bottom[1],
+          right: KoordinatsModels.KoordinatRings.model.marginOnMe.right[indexCustom],
+          bottom: KoordinatsModels.KoordinatRings.model.marginOnMe.bottom[indexBottom],
           rotasi: KoordinatsModels.KoordinatRings.model.rotasi[index_model],
           scale: KoordinatsModels.KoordinatRings.model.scaleMobile[index_model],
           transformDesktop: KoordinatsModels.KoordinatRings.model.transformDesktop[index_model],
@@ -527,7 +535,7 @@ export default function OnModel(props) {
       //     transformOrigin: KoordinatsModels.KoordinatRings.model.transformOrigin[index_model],
       //     transformOriginOnMe: KoordinatsModels.KoordinatRings.model.transformOriginOnMe[index_model],
       //   }
-      // } 
+      // }
       else if (isMobile) {
         return {
           widthBox: KoordinatsModels.KoordinatRings.model.marginMobile.widthBox[index_model],
@@ -579,8 +587,7 @@ export default function OnModel(props) {
           transformOriginOnMe: KoordinatsModels.KoordinatRings.model.transformOriginOnMe[index_model],
         }
       }
-    }
-    else {
+    } else {
       return []
     }
   }, [cat, index_model])
@@ -616,7 +623,7 @@ export default function OnModel(props) {
     style_model_product_default.transformDesktop,
     style_model_product_default.widthBox,
   ])
-  if (on_me === "on" && !isMobile) {
+  if (on_me === 'on' && !isMobile) {
     return (
       <Center>
         <Box
@@ -647,28 +654,27 @@ export default function OnModel(props) {
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             position: 'fixed',
-            transform: 'scale(1)',
+            // transform: 'scale(1)',
             transition: 'transform 0.3s ease 0s',
             transformOrigin: '195px 229px 0px',
             bottom: '205px',
             top: '0px',
             zIndex: '1800',
-            width: '365px'
+            width: '365px',
           }}
         >
           <DragUseSpring
             position="relative"
-          // params={{
-          //   bgref: bgRef,
-          //   lengslider: props.params.lengslider,
-          //   ProductImage: props.params.ProductImage,
-          // }}
+            // params={{
+            //   bgref: bgRef,
+            //   lengslider: props.params.lengslider,
+            //   ProductImage: props.params.ProductImage,
+            // }}
           />
         </Box>
       </Center>
     )
-  }
-  else if (on_me === "on" && isMobile) {
+  } else if (on_me === 'on' && isMobile) {
     return (
       <Center>
         <Box
@@ -690,7 +696,7 @@ export default function OnModel(props) {
         <Box
           w="330px"
           // h={417.4}
-          // marginTop={10} 
+          // marginTop={10}
           bg="#0e1c28f0"
           id="box-onmodel"
           aaa="2"
@@ -711,16 +717,16 @@ export default function OnModel(props) {
         >
           <DragUseSpring
             position="relative"
-          // params={{
-          //   bgref: bgRef,
-          //   lengslider: props.params.lengslider,
-          //   ProductImage: props.params.ProductImage,
-          // }}
+            // params={{
+            //   bgref: bgRef,
+            //   lengslider: props.params.lengslider,
+            //   ProductImage: props.params.ProductImage,
+            // }}
           />
         </Box>
-      </Center>)
-  }
-  else {
+      </Center>
+    )
+  } else {
     return (
       <Center>
         <Box
@@ -763,14 +769,14 @@ export default function OnModel(props) {
         >
           <DragUseSpring
             position="relative"
-          // params={{
-          //   bgref: bgRef,
-          //   lengslider: props.params.lengslider,
-          //   ProductImage: props.params.ProductImage,
-          // }}
+            // params={{
+            //   bgref: bgRef,
+            //   lengslider: props.params.lengslider,
+            //   ProductImage: props.params.ProductImage,
+            // }}
           />
         </Box>
-      </Center>)
+      </Center>
+    )
   }
-
 }

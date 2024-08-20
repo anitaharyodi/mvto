@@ -132,7 +132,7 @@ export default function Home() {
         }
       )
       .catch(e => {
-        alert('Fetch Error: ' + e)
+        alert('Gagal memuat halaman. Silakan refresh halaman kembali')
       })
       .finally(() => {
         localStorage.setItem('KoordinatsModel', JSON.stringify(Koordinats))

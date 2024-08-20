@@ -10,12 +10,14 @@ import { useSearchParams } from 'next/navigation'
 import { STATE_OFF, STATE_ON, VIEW_ON_COMPARE, VIEW_ON_DETAIL, VIEW_ON_ME, VIEW_ON_MODEL } from '../values/view_modes'
 
 function DragUseSpring() {
+  const screen_width = document.documentElement.clientWidth
   const imageStackLS = useProductStore(s => s.productStackList)
   const index_product = useProductStore(s => s.index_product)
   const index_selected_model = useModelStore(s => s.index_selected)
   const [valimgCtrl, setvalimgCtrl] = React.useState(0)
   const [__, setViewAble] = React.useState(false)
   const params = useModelStore(s => s.footer_params)
+  const indexScale = screen_width < 360 ? index_selected_model : 2
 
   var on_me = 'off';
   if (params.img_list.length === 1)
@@ -52,7 +54,7 @@ function DragUseSpring() {
     let pw = '100%'
     if (key_model !== '') {
       if (on_me === "on") {
-        pw = KoordinatsModels[key_model].model.marginOnMe.dimension[index_selected_model] + '%'
+        pw = KoordinatsModels[key_model].model.marginOnMe.dimension[indexScale] + '%'
         // } else if (isMobile && !mobiled) {
         //   pw = KoordinatsModels[key_model].model.marginMobiled.dimension[index_selected_model] + '%'
       } else if (isMobile) {
