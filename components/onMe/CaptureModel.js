@@ -67,175 +67,6 @@ export default function CaptureModel({ pose, holderSvg }) {
     setDefaultScale(scaleDefaulring)
   }, [defaultScale])
 
-  const detect = useCallback(
-    async net => {
-      setStatusReady(true)
-      // Check data is available
-      if (typeof webcamRef.current !== 'undefined' && webcamRef.current !== null && webcamRef.current.video.readyState === 4) {
-        setActionOnchange(localStorage.getItem('actioncamera'))
-        let statusCamera = ''
-        statusCamera = localStorage.getItem('actioncamera')
-        console.log('statusCamera B', statusCamera)
-        if (statusCamera === 'Otomatis') {
-          document.getElementById('alert').textContent = "Harap tunggu..."
-          const video = webcamRef.current.video
-          const videoWidth = webcamRef.current.video.videoWidth
-          const videoHeight = webcamRef.current.video.videoHeight
-          // Set video width
-          webcamRef.current.video.width = videoWidth
-          webcamRef.current.video.height = videoHeight
-
-          // Set canvas height and width
-          canvasRef.current.width = videoWidth
-          canvasRef.current.height = videoHeight
-
-          // Make Detections
-
-          if (net.estimateFaces) {
-            const face = await net.estimateFaces(video)
-            // @todo:
-            if (face.length > 0) {
-              let totData = 0
-              let scaleWidth = window.innerWidth
-              // if (scaleWidth >= 300) {
-              if (true) {
-                console.log(face[0].annotations)
-                if (cat == CAT_NECKLACES) {
-                  if (face[0].annotations.leftCheek.length > 0) {
-                    for (let h = 0; h < face[0].annotations.leftCheek.length; h++) {
-                      totData += face[0].annotations.leftCheek[h][0]
-                      //console.log('totData',face[0].annotations.palmBase[h][0])
-                    }
-
-                    // document.getElementById('alert').textContent = "leftCheek" + totData
-                    // console.log('masuk', totData)
-                    if (totData >= 265 && totData <= 275) {
-                      takeCap()
-                    }
-                  }
-                } else if (cat == CAT_EARRINGS) {
-                  if (face[0].annotations.leftEyebrowLower.length > 0) {
-                    for (let h = 0; h < face[0].annotations.leftEyebrowLower.length; h++) {
-                      totData += face[0].annotations.leftEyebrowLower[h][0]
-                      //console.log('totData',face[0].annotations.leftEyebrowLower[h][0])
-                    }
-                    // document.getElementById('alert').textContent = "leftEyebrowLower" + totData
-                    // console.log('masuk', totData)
-                    if (totData >= 1335 && totData <= 1350) {
-                      takeCap()
-                    }
-                  }
-                }
-              }
-            }
-          } else if (net.estimateHands) {
-            const hand = await net.estimateHands(video)
-            if (hand.length > 0) {
-              let totData = 0
-              let scaleWidth = window.innerWidth
-              console.log(hand[0].annotations)
-              // if (scaleWidth >= 300) {
-              if (true) {
-                if (cat == CAT_BRACELETS) {
-                  if (hand[0].annotations.palmBase.length > 0) {
-                    for (let h = 0; h < hand[0].annotations.palmBase.length; h++) {
-                      totData += hand[0].annotations.palmBase[h][0]
-                      // console.log('totData', hand[0].annotations.palmBase[h][0])
-                    }
-                    // document.getElementById('alert').textContent = "palmBase" + totData
-                    // console.log('masuk', totData)
-                    if (totData >= 260 && totData <= 263) {
-                      takeCap()
-                    }
-                  }
-                } else if (cat == CAT_RINGS) {
-                  if (hand[0].annotations.ringFinger.length > 0) {
-                    for (let h = 0; h < hand[0].annotations.ringFinger.length; h++) {
-                      totData += hand[0].annotations.ringFinger[h][0]
-                      // console.log('totData', hand[0].annotations.palmBase[h][0])
-                    }
-
-                    document.getElementById('alert').textContent = "ringfinger" + totData
-                    // console.log('masuk', totData)
-                    if (totData >= 925 && totData <= 935) {
-                      takeCap()
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    [categoryDefault.cat, categoryDefault.customer_id, categoryDefault.id_cat, categoryDefault.login, imageCaptureList, setImgList, setViewMode]
-  )
-
-  const runPose = useCallback(async () => {
-    const net = await pose.load()
-    _signList()
-    setInterval(() => {
-      detect(net)
-    }, 1000)
-  }, [detect, pose])
-
-  function _signList() {
-    signList = generateSigns()
-  }
-
-  function generateSigns() {
-    const password = shuffle(Signpass)
-    return password
-  }
-  function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[a[i], a[j]] = [a[j], a[i]]
-    }
-    return a
-  }
-  useEffect(() => {
-    runPose()
-  }, [runPose])
-
-  useEffect(() => {
-    if(actionCamera === 'Otomatis') {
-      document.getElementById('alert').textContent = "Harap tunggu..."
-    }else {
-       document.getElementById('alert').textContent = ""
-    }
-  }, [actionCamera])
-
-  useEffect(() => {
-    localStorage.setItem('actioncamera', checked ? 'Otomatis' : 'Manual')
-    setActionCamera(checked ? 'Otomatis' : 'Manual')
-  }, [checked])
-
-  // useEffect(() => {
-  //   localStorage.setItem('actioncamera', actionOncahnge)
-  // }, [actionOncahnge])
-
-  function turnOffCamera() {
-    if (cat === CAT_RINGS) {
-      setImgList(KoordinatsModelsFooter.KoordinatRings.model.image)
-    } else if (cat === CAT_BRACELETS) {
-      setImgList(KoordinatsModelsFooter.KoordinatBracelets.model.image)
-    } else if (cat === CAT_EARRINGS) {
-      setImgList(KoordinatsModelsFooter.KoordinatEarrings.model.image)
-    } else if (cat === CAT_BANGLES) {
-      setImgList(KoordinatsModelsFooter.KoordinatBangles.model.image)
-    } else if (cat === CAT_NECKLACES) {
-      setImgList(KoordinatsModelsFooter.KoordinatNecklaces.model.image)
-    }
-
-    setViewMode(VIEW_ON_MODEL)
-    setStackState(STATE_ON)
-  }
-
-  useEffect(() => {
-    localStorage.setItem('koordinatJari', JSON.stringify(koordinat_tubuh))
-  }, [koordinat_tubuh])
-
   function takeCap() {
     const image_data_url = webcamRef.current.getScreenshot()
     //console.log(customer_id)
@@ -297,6 +128,145 @@ export default function CaptureModel({ pose, holderSvg }) {
       })
     }
   }
+
+  const processFaceData = face => {
+    let totData = 0
+    if (cat === CAT_NECKLACES) {
+      face.annotations.leftCheek.forEach(point => (totData += point[0]))
+      if (totData >= 265 && totData <= 275) takeCap()
+    } else if (cat === CAT_EARRINGS) {
+      face.annotations.leftEyebrowLower.forEach(point => (totData += point[0]))
+      if (totData >= 1335 && totData <= 1350) takeCap()
+    }
+  }
+
+  const processHandData = hand => {
+    let totData = 0
+    if (cat === CAT_BRACELETS) {
+      hand.annotations.palmBase.forEach(point => (totData += point[0]))
+      if (totData >= 260 && totData <= 263) takeCap()
+    } else if (cat === CAT_RINGS) {
+      hand.annotations.ringFinger.forEach(point => (totData += point[0]))
+      document.getElementById('alert').textContent = 'ringfinger' + totData
+      if (totData >= 925 && totData <= 935) takeCap()
+    }
+  }
+
+  const detect = useCallback(
+    async net => {
+      if (!webcamRef.current || !webcamRef.current.video.readyState === 4) return
+
+      setStatusReady(true)
+      const statusCamera = localStorage.getItem('actioncamera')
+      setActionOnchange(statusCamera)
+
+      if (statusCamera === 'Otomatis') {
+        document.getElementById('alert').textContent = 'Harap tunggu...'
+        const video = webcamRef.current.video
+        const videoWidth = video.videoWidth
+        const videoHeight = video.videoHeight
+
+        webcamRef.current.video.width = videoWidth
+        webcamRef.current.video.height = videoHeight
+        canvasRef.current.width = videoWidth
+        canvasRef.current.height = videoHeight
+
+        if (net.estimateFaces) {
+          const faces = await net.estimateFaces(video)
+          if (faces.length > 0) {
+            processFaceData(faces[0])
+          }
+        } else if (net.estimateHands) {
+          const hands = await net.estimateHands(video)
+          if (hands.length > 0) {
+            processHandData(hands[0])
+          }
+        }
+      }
+    },
+    [categoryDefault.cat, categoryDefault.customer_id, categoryDefault.id_cat, categoryDefault.login, imageCaptureList, setImgList, setViewMode]
+  )
+
+  // ngelimit rate function dipanggil
+  function throttle(fn, wait) {
+    let lastTime = 0
+    return function (...args) {
+      const now = new Date().getTime()
+      if (now - lastTime >= wait) {
+        lastTime = now
+        return fn(...args)
+      }
+    }
+  }
+
+  function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+
+  function generateSigns() {
+    const password = shuffle(Signpass)
+    return password
+  }
+
+  function _signList() {
+    signList = generateSigns()
+  }
+
+  const runPose = useCallback(async () => {
+    const net = await pose.load()
+    _signList()
+
+    const detectWithThrottle = throttle(() => detect(net), 500) // throttle limit 1 per detik
+    const detectLoop = () => {
+      detectWithThrottle()
+      requestAnimationFrame(detectLoop)
+    }
+    requestAnimationFrame(detectLoop)
+  }, [detect, pose])
+
+  useEffect(() => {
+    runPose()
+  }, [runPose])
+
+  useEffect(() => {
+    const alertMessage = actionCamera === 'Otomatis' ? 'Harap tunggu...' : ''
+    document.getElementById('alert').textContent = alertMessage
+  }, [actionCamera])
+
+  useEffect(() => {
+    const action = checked ? 'Otomatis' : 'Manual'
+    localStorage.setItem('actioncamera', action)
+    setActionCamera(action)
+  }, [checked])
+
+  // useEffect(() => {
+  //   localStorage.setItem('actioncamera', actionOncahnge)
+  // }, [actionOncahnge])
+
+  function turnOffCamera() {
+    if (cat === CAT_RINGS) {
+      setImgList(KoordinatsModelsFooter.KoordinatRings.model.image)
+    } else if (cat === CAT_BRACELETS) {
+      setImgList(KoordinatsModelsFooter.KoordinatBracelets.model.image)
+    } else if (cat === CAT_EARRINGS) {
+      setImgList(KoordinatsModelsFooter.KoordinatEarrings.model.image)
+    } else if (cat === CAT_BANGLES) {
+      setImgList(KoordinatsModelsFooter.KoordinatBangles.model.image)
+    } else if (cat === CAT_NECKLACES) {
+      setImgList(KoordinatsModelsFooter.KoordinatNecklaces.model.image)
+    }
+
+    setViewMode(VIEW_ON_MODEL)
+    setStackState(STATE_ON)
+  }
+
+  useEffect(() => {
+    localStorage.setItem('koordinatJari', JSON.stringify(koordinat_tubuh))
+  }, [koordinat_tubuh])
 
   const handleChange = e => {
     setChecked(e.target.checked)
@@ -454,4 +424,8 @@ export default function CaptureModel({ pose, holderSvg }) {
       ) : null}
     </>
   )
+}
+
+function shuffle(array) {
+  // shuffle array function implementation
 }
